@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   fetchUsers,
   fetchUser,
@@ -31,11 +32,17 @@ export const useCreateUser = () => {
 
   return useMutation({
     mutationFn: createUser,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(["users", "list"]);
+      toast.success("User created successfully!", {
+        description: `${data.name} has been added to the system.`,
+      });
     },
     onError: (error) => {
       console.error("Create user error:", error);
+      toast.error("Failed to create user", {
+        description: error.message || "Something went wrong. Please try again.",
+      });
     },
   });
 };
@@ -49,9 +56,15 @@ export const useUpdateUser = () => {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries(["users", "list"]);
       queryClient.invalidateQueries(["users", "detail", variables.userId]);
+      toast.success("User updated successfully!", {
+        description: `${data.name}'s information has been updated.`,
+      });
     },
     onError: (error) => {
       console.error("Update user error:", error);
+      toast.error("Failed to update user", {
+        description: error.message || "Something went wrong. Please try again.",
+      });
     },
   });
 };
@@ -62,11 +75,17 @@ export const useDeleteUser = () => {
 
   return useMutation({
     mutationFn: deleteUser,
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries(["users", "list"]);
+      toast.success("User deleted successfully!", {
+        description: "The user has been removed from the system.",
+      });
     },
     onError: (error) => {
       console.error("Delete user error:", error);
+      toast.error("Failed to delete user", {
+        description: error.message || "Something went wrong. Please try again.",
+      });
     },
   });
 };

@@ -1,5 +1,6 @@
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import QueryProvider from "@/lib/providers/QueryProvider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata = {
@@ -16,6 +17,12 @@ export default function RootLayout({ children }) {
             <AdminSidebar />
             <main className="flex-1 overflow-y-auto">{children}</main>
           </div>
+          <Toaster 
+            position="top-right"
+            richColors
+            closeButton
+            duration={4000}
+          />
         </QueryProvider>
       </body>
     </html>

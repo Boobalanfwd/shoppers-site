@@ -39,11 +39,17 @@ const userSchema = yup
         then: (schema) => schema.required("Password is required"),
         otherwise: (schema) => schema.optional(),
       })
-      .min(6, "Password must be at least 6 characters")
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
+      .when("$isEditing", {
+        is: false,
+        then: (schema) => 
+          schema
+            .min(6, "Password must be at least 6 characters")
+            .matches(
+              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+              "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+            ),
+        otherwise: (schema) => schema,
+      }),
     confirmPassword: yup
       .string()
       .oneOf([yup.ref("password")], "Passwords must match")
@@ -95,8 +101,7 @@ export default function UserForm({ user = null, onClose, onSuccess }) {
     },
   });
 
-  // Watch password field for conditional validation
-  const password = watch("password");
+
 
   useEffect(() => {
     if (user) {
@@ -118,7 +123,7 @@ export default function UserForm({ user = null, onClose, onSuccess }) {
         name: data.name,
         email: data.email,
         role: data.role,
-        gender: data.gender || null,
+        gender: data.gender === "" ? null : data.gender,
         dob: data.dob ? new Date(data.dob) : null,
       };
 
@@ -234,99 +239,91 @@ export default function UserForm({ user = null, onClose, onSuccess }) {
                 )}
               </div>
 
-              {/* Password Field */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">
-                  Password{" "}
-                  {user && (
-                    <span className="text-gray-500 font-normal">
-                      (leave blank to keep current)
-                    </span>
-                  )}
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    {...register("password")}
-                    placeholder={user ? "Enter new password" : "Enter password"}
-                    className={`pr-10 ${
-                      errors.password
-                        ? "border-red-500 focus:border-red-500"
-                        : ""
-                    }`}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-500" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-500" />
+              {/* Password Field - Only show for new users */}
+              {!user && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-sm font-medium">
+                      Password *
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        {...register("password")}
+                        placeholder="Enter password"
+                        className={`pr-10 ${
+                          errors.password
+                            ? "border-red-500 focus:border-red-500"
+                            : ""
+                        }`}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-500" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-500" />
+                        )}
+                      </Button>
+                    </div>
+                    {errors.password && (
+                      <p className="text-sm text-red-500 flex items-center gap-1">
+                        <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                        {errors.password.message}
+                      </p>
                     )}
-                  </Button>
-                </div>
-                {errors.password && (
-                  <p className="text-sm text-red-500 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Confirm Password Field - Only show for new users or when password is entered */}
-              {(!user || password) && (
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="confirmPassword"
-                    className="text-sm font-medium"
-                  >
-                    Confirm Password{" "}
-                    {user && (
-                      <span className="text-gray-500 font-normal">
-                        (optional)
-                      </span>
-                    )}
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      {...register("confirmPassword")}
-                      placeholder="Confirm password"
-                      className={`pr-10 ${
-                        errors.confirmPassword
-                          ? "border-red-500 focus:border-red-500"
-                          : ""
-                      }`}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4 text-gray-500" />
-                      ) : (
-                        <Eye className="h-4 w-4 text-gray-500" />
-                      )}
-                    </Button>
                   </div>
-                  {errors.confirmPassword && (
-                    <p className="text-sm text-red-500 flex items-center gap-1">
-                      <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                      {errors.confirmPassword.message}
-                    </p>
-                  )}
-                </div>
+
+                  {/* Confirm Password Field - Only for new users */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="confirmPassword"
+                      className="text-sm font-medium"
+                    >
+                      Confirm Password *
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        {...register("confirmPassword")}
+                        placeholder="Confirm password"
+                        className={`pr-10 ${
+                          errors.confirmPassword
+                            ? "border-red-500 focus:border-red-500"
+                            : ""
+                        }`}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-500" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-500" />
+                        )}
+                      </Button>
+                    </div>
+                    {errors.confirmPassword && (
+                      <p className="text-sm text-red-500 flex items-center gap-1">
+                        <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                        {errors.confirmPassword.message}
+                      </p>
+                    )}
+                  </div>
+                </>
               )}
 
               {/* Role Field */}
@@ -370,31 +367,31 @@ export default function UserForm({ user = null, onClose, onSuccess }) {
                 )}
               </div>
 
-              {/* Gender Field */}
-              <div className="space-y-2">
-                <Label htmlFor="gender" className="text-sm font-medium">
-                  Gender
-                </Label>
-                <Select
-                  value={watch("gender")}
-                  onValueChange={(value) => setValue("gender", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.gender && (
-                  <p className="text-sm text-red-500 flex items-center gap-1">
-                    <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                    {errors.gender.message}
-                  </p>
-                )}
-              </div>
+                                            {/* Gender Field */}
+               <div className="space-y-2">
+                 <Label htmlFor="gender" className="text-sm font-medium">
+                   Gender
+                 </Label>
+                 <Select
+                   value={watch("gender")}
+                   onValueChange={(value) => setValue("gender", value)}
+                 >
+                   <SelectTrigger>
+                     <SelectValue placeholder="Select gender (optional)" />
+                   </SelectTrigger>
+                   <SelectContent>
+                     <SelectItem value="male">Male</SelectItem>
+                     <SelectItem value="female">Female</SelectItem>
+                     <SelectItem value="other">Other</SelectItem>
+                   </SelectContent>
+                 </Select>
+                 {errors.gender && (
+                   <p className="text-sm text-red-500 flex items-center gap-1">
+                     <span className="w-1 h-1 bg-red-500 rounded-full"></span>
+                     {errors.gender.message}
+                   </p>
+                 )}
+               </div>
 
               {/* Date of Birth Field */}
               <div className="space-y-2">

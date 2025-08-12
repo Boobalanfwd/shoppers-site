@@ -92,7 +92,7 @@ export default function UsersPage() {
   // Extract data from the API response
   const users = usersData?.data?.users || [];
   const pagination = usersData?.pagination || {};
-  const totalUsers = pagination.total || 0;
+  const totalUsers = usersData?.data?.users?.length || 0;
   const totalPages = pagination.totalPages || 0;
 
   const handleSelectUser = (userId, checked) => {
@@ -177,13 +177,13 @@ export default function UsersPage() {
   const getRoleColor = (role) => {
     switch (role) {
       case "admin":
-        return "bg-purple-100 text-purple-800";
+        return "bg-purple-100 text-purple-800 pb-1";
       case "customer":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 pb-1";
       case "moderator":
-        return "bg-orange-100 text-orange-800";
+        return "bg-orange-100 text-orange-800 pb-1";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 pb-1";
     }
   };
 
@@ -352,7 +352,7 @@ export default function UsersPage() {
         </Card>
       </motion.div>
 
-      {/* Users Table */}
+      {/* Users Content */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -383,126 +383,226 @@ export default function UsersPage() {
               </div>
             ) : (
               <>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">
-                        <Checkbox
-                          checked={
-                            selectedUsers.length === users.length &&
-                            users.length > 0
-                          }
-                          onCheckedChange={handleSelectAll}
-                        />
-                      </TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Gender</TableHead>
-                      <TableHead>Join Date</TableHead>
-                      <TableHead className="w-12">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                {/* Table View */}
+                {viewMode === "table" && (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-12">
+                            <Checkbox
+                              checked={
+                                selectedUsers.length === users.length &&
+                                users.length > 0
+                              }
+                              onCheckedChange={handleSelectAll}
+                            />
+                          </TableHead>
+                          <TableHead>User</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Gender</TableHead>
+                          <TableHead>Date of Birth</TableHead>
+                          <TableHead className="w-12">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {users.map((user) => (
+                          <TableRow key={user.id}>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedUsers.includes(user.id)}
+                                onCheckedChange={(checked) =>
+                                  handleSelectUser(user.id, checked)
+                                }
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-3">
+                                <Avatar>
+                                  <AvatarImage
+                                    src={user.avatar || `/avatars/${user.id}.png`}
+                                  />
+                                  <AvatarFallback className="capitalize">
+                                    {user.name
+                                      ?.split(" ")
+                                      .map((n) => n[0])
+                                      .join("") || "U"}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className="font-medium capitalize">
+                                    {user.name || "Unknown User"}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {user.email}
+                                  </div>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={getRoleColor(user.role)}>
+                                {user.role || "Customer"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="text-sm text-gray-600">
+                                {user.gender
+                                  ? user.gender.charAt(0).toUpperCase() +
+                                    user.gender.slice(1)
+                                  : "Not specified"}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="text-sm">
+                                {formatDate(user.dob)}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => handleViewUser(user)}
+                                  >
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    View Details
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditUser(user)}
+                                  >
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Edit User
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="text-red-600"
+                                    onClick={() => handleDeleteUser(user.id)}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete User
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+
+                {/* Grid View */}
+                {viewMode === "grid" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
-                          <Checkbox
-                            checked={selectedUsers.includes(user.id)}
-                            onCheckedChange={(checked) =>
-                              handleSelectUser(user.id, checked)
-                            }
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-3">
-                            <Avatar>
+                      <Card key={user.id} className="relative group hover:shadow-lg transition-shadow">
+                        <CardContent className="p-4">
+                          {/* Checkbox */}
+                          <div className="absolute top-3 left-3 z-10">
+                            <Checkbox
+                              checked={selectedUsers.includes(user.id)}
+                              onCheckedChange={(checked) =>
+                                handleSelectUser(user.id, checked)
+                              }
+                            />
+                          </div>
+
+                          {/* User Info */}
+                          <div className="text-center pt-2">
+                            <Avatar className="w-16 h-16 mx-auto mb-3">
                               <AvatarImage
                                 src={user.avatar || `/avatars/${user.id}.png`}
                               />
-                              <AvatarFallback>
+                              <AvatarFallback className="capitalize text-lg">
                                 {user.name
                                   ?.split(" ")
                                   .map((n) => n[0])
                                   .join("") || "U"}
                               </AvatarFallback>
                             </Avatar>
-                            <div>
-                              <div className="font-medium">
-                                {user.name || "Unknown User"}
+                            
+                            <h3 className="font-semibold text-gray-900 capitalize mb-1">
+                              {user.name || "Unknown User"}
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-3 truncate">
+                              {user.email}
+                            </p>
+
+                            {/* Role Badge */}
+                            <div className="mb-3">
+                              <Badge className={getRoleColor(user.role)}>
+                                {user.role || "Customer"}
+                              </Badge>
+                            </div>
+
+                            {/* User Details */}
+                            <div className="space-y-2 text-sm text-gray-600">
+                              <div className="flex justify-between">
+                                <span>Gender:</span>
+                                <span className="capitalize">
+                                  {user.gender || "Not specified"}
+                                </span>
                               </div>
-                              <div className="text-sm text-gray-500">
-                                {user.email}
+                              <div className="flex justify-between">
+                                <span>DOB:</span>
+                                <span>{formatDate(user.dob)}</span>
                               </div>
                             </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getRoleColor(user.role)}>
-                            {user.role || "Customer"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm text-gray-600">
-                            {user.gender
-                              ? user.gender.charAt(0).toUpperCase() +
-                                user.gender.slice(1)
-                              : "Not specified"}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {formatDate(user.createdAt)}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
+
+                            {/* Actions */}
+                            <div className="mt-4 flex justify-center space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => handleViewUser(user)}
+                                className="flex-1"
                               >
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
+                                <Eye className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => handleEditUser(user)}
+                                className="flex-1"
                               >
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit User
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-red-600"
+                                <Edit className="h-4 w-4 mr-1" />
+                                Edit
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => handleDeleteUser(user.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
                               >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete User
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
-                  </TableBody>
-                </Table>
+                  </div>
+                )}
 
                 {/* Enhanced Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-6">
-                    <div className="text-sm text-gray-500">
+                  <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4">
+                    <div className="text-sm text-gray-500 text-center sm:text-left">
                       Showing {(currentPage - 1) * pageSize + 1} to{" "}
                       {Math.min(currentPage * pageSize, totalUsers)} of{" "}
                       {totalUsers} users
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1 sm:space-x-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handlePageChange(1)}
                         disabled={currentPage === 1}
+                        className="hidden sm:flex"
                       >
                         <ChevronsLeft className="h-4 w-4" />
                       </Button>
@@ -515,20 +615,27 @@ export default function UsersPage() {
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
 
-                      {getPageNumbers().map((page, index) => (
-                        <Button
-                          key={index}
-                          variant={page === currentPage ? "default" : "outline"}
-                          size="sm"
-                          onClick={() =>
-                            typeof page === "number" && handlePageChange(page)
-                          }
-                          disabled={page === "..."}
-                          className={page === "..." ? "cursor-default" : ""}
-                        >
-                          {page}
-                        </Button>
-                      ))}
+                      <div className="hidden sm:flex items-center space-x-1">
+                        {getPageNumbers().map((page, index) => (
+                          <Button
+                            key={index}
+                            variant={page === currentPage ? "default" : "outline"}
+                            size="sm"
+                            onClick={() =>
+                              typeof page === "number" && handlePageChange(page)
+                            }
+                            disabled={page === "..."}
+                            className={page === "..." ? "cursor-default" : ""}
+                          >
+                            {page}
+                          </Button>
+                        ))}
+                      </div>
+
+                      {/* Mobile pagination */}
+                      <div className="sm:hidden text-sm font-medium">
+                        Page {currentPage} of {totalPages}
+                      </div>
 
                       <Button
                         variant="outline"
@@ -543,6 +650,7 @@ export default function UsersPage() {
                         size="sm"
                         onClick={() => handlePageChange(totalPages)}
                         disabled={currentPage === totalPages}
+                        className="hidden sm:flex"
                       >
                         <ChevronsRight className="h-4 w-4" />
                       </Button>
