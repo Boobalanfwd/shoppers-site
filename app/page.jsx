@@ -1,81 +1,81 @@
-'use client'
-import { motion } from 'framer-motion'
-import { 
-  DollarSign, 
-  ShoppingCart, 
-  Users, 
+"use client";
+import { motion } from "framer-motion";
+import {
+  DollarSign,
+  ShoppingCart,
+  Users,
   Package,
   TrendingUp,
   TrendingDown,
-  Activity
-} from 'lucide-react'
-import { StatsCard } from '@/components/admin/stats-card'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { orders, products, users } from '@/lib/data'
-import { formatPrice, formatDate } from '@/lib/utils'
+  Activity,
+} from "lucide-react";
+import { StatsCard } from "@/components/admin/stats-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { orders, products, users } from "@/lib/data";
+import { formatPrice, formatDate } from "@/lib/utils";
 
 export default function AdminDashboard() {
-  const totalRevenue = orders.reduce((sum, order) => sum + order.totalPrice, 0)
-  const totalOrders = orders.length
-  const totalCustomers = users.length
-  const totalProducts = products.length
+  const totalRevenue = orders.reduce((sum, order) => sum + order.totalPrice, 0);
+  const totalOrders = orders.length;
+  const totalCustomers = users.length;
+  const totalProducts = products.length;
 
-  const recentOrders = orders.slice(0, 5)
+  const recentOrders = orders.slice(0, 5);
 
   const stats = [
     {
-      title: 'Total Revenue',
+      title: "Total Revenue",
       value: formatPrice(totalRevenue),
-      change: '+12.5% from last month',
-      changeType: 'positive',
+      change: "+12.5% from last month",
+      changeType: "positive",
       icon: DollarSign,
     },
     {
-      title: 'Total Orders',
+      title: "Total Orders",
       value: totalOrders,
-      change: '+8.2% from last month',
-      changeType: 'positive',
+      change: "+8.2% from last month",
+      changeType: "positive",
       icon: ShoppingCart,
     },
     {
-      title: 'Total Customers',
+      title: "Total Customers",
       value: totalCustomers,
-      change: '+15.3% from last month',
-      changeType: 'positive',
+      change: "+15.3% from last month",
+      changeType: "positive",
       icon: Users,
     },
     {
-      title: 'Total Products',
+      title: "Total Products",
       value: totalProducts,
-      change: '+2 new products',
-      changeType: 'neutral',
+      change: "+2 new products",
+      changeType: "neutral",
       icon: Package,
     },
-  ]
+  ];
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'delivered':
-        return 'bg-green-100 text-green-800'
-      case 'shipped':
-        return 'bg-blue-100 text-blue-800'
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'cancelled':
-        return 'bg-red-100 text-red-800'
+      case "delivered":
+        return "bg-green-100 text-green-800";
+      case "shipped":
+        return "bg-blue-100 text-blue-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800'
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   return (
     <div className="p-8">
@@ -89,7 +89,7 @@ export default function AdminDashboard() {
           Dashboard Overview
         </h1>
         <p className="text-gray-600">
-          Welcome back! Here's what's happening with your store today.
+          Welcome back! Here&apos;s what&apos;s happening with your store today.
         </p>
       </motion.div>
 
@@ -126,13 +126,13 @@ export default function AdminDashboard() {
                 </TableHeader>
                 <TableBody>
                   {recentOrders.map((order) => {
-                    const customer = users.find(u => u.id === order.userId)
+                    const customer = users.find((u) => u.id === order.userId);
                     return (
                       <TableRow key={order.id}>
                         <TableCell className="font-medium">
                           #{order.id.slice(0, 8)}
                         </TableCell>
-                        <TableCell>{customer?.name || 'Unknown'}</TableCell>
+                        <TableCell>{customer?.name || "Unknown"}</TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(order.status)}>
                             {order.status}
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
                         </TableCell>
                         <TableCell>{formatPrice(order.totalPrice)}</TableCell>
                       </TableRow>
-                    )
+                    );
                   })}
                 </TableBody>
               </Table>
@@ -166,25 +166,29 @@ export default function AdminDashboard() {
                 </div>
                 <span className="text-2xl font-bold text-green-600">3.2%</span>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Activity className="h-5 w-5 text-blue-600" />
-                  <span className="text-sm font-medium">Average Order Value</span>
+                  <span className="text-sm font-medium">
+                    Average Order Value
+                  </span>
                 </div>
                 <span className="text-2xl font-bold text-blue-600">
                   {formatPrice(totalRevenue / totalOrders)}
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Users className="h-5 w-5 text-purple-600" />
-                  <span className="text-sm font-medium">Customer Retention</span>
+                  <span className="text-sm font-medium">
+                    Customer Retention
+                  </span>
                 </div>
                 <span className="text-2xl font-bold text-purple-600">68%</span>
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Package className="h-5 w-5 text-orange-600" />
@@ -199,5 +203,5 @@ export default function AdminDashboard() {
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

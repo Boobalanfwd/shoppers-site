@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   Package,
@@ -14,51 +14,51 @@ import {
   Bell,
   ChevronLeft,
   ChevronRight,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const sidebarItems = [
   {
-    title: 'Dashboard',
-    href: '/',
+    title: "Dashboard",
+    href: "/",
     icon: LayoutDashboard,
   },
   {
-    title: 'Products',
-    href: '/products',
+    title: "Products",
+    href: "/products",
     icon: Package,
   },
   {
-    title: 'Orders',
-    href: '/orders',
+    title: "Orders",
+    href: "/orders",
     icon: ShoppingCart,
   },
   {
-    title: 'Customers',
-    href: '/customers',
+    title: "Users",
+    href: "/users",
     icon: Users,
   },
   {
-    title: 'Analytics',
-    href: '/analytics',
+    title: "Analytics",
+    href: "/analytics",
     icon: BarChart3,
   },
   {
-    title: 'Notifications',
-    href: '/notifications',
+    title: "Notifications",
+    href: "/notifications",
     icon: Bell,
   },
   {
-    title: 'Settings',
-    href: '/settings',
+    title: "Settings",
+    href: "/settings",
     icon: Settings,
   },
-]
+];
 
 export function AdminSidebar() {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-  const pathname = usePathname()
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const pathname = usePathname();
 
   return (
     <motion.div
@@ -89,18 +89,18 @@ export function AdminSidebar() {
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
         {sidebarItems.map((item) => {
-          const isActive = pathname === item.href
-          const Icon = item.icon
+          const isActive = pathname === item.href;
+          const Icon = item.icon;
 
           return (
             <Link key={item.href} href={item.href}>
               <motion.div
                 whileHover={{ x: 4 }}
                 className={cn(
-                  'flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors',
+                  "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
                   isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 )}
               >
                 <Icon className="h-5 w-5 flex-shrink-0" />
@@ -109,7 +109,7 @@ export function AdminSidebar() {
                 )}
               </motion.div>
             </Link>
-          )
+          );
         })}
       </nav>
 
@@ -128,5 +128,5 @@ export function AdminSidebar() {
         </div>
       </div>
     </motion.div>
-  )
+  );
 }
